@@ -1,6 +1,6 @@
 from .serializer import ProductSerializer
 from products.models import Product
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view , permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -10,18 +10,19 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import authentication
 
-# @api_view(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
-# def api_view_products(request, pk=None, *args, **kwargs):
+@api_view(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+@permission_classes([permissions.IsAdminUser , permissions.IsAuthenticated , permissions.IsAuthenticatedOrReadOnly])
+def api_view_products(request, pk=None, *args, **kwargs):
     
-#     if request.method == "GET":
-#         if pk:
-#             product = get_object_or_404(Product, pk=pk)
-#             serializer = ProductSerializer(product, many=False)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         else:
-#             products = Product.objects.all()
-#             serializer = ProductSerializer(products, many=True)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
+    if request.method == "GET":
+        if pk:
+            product = get_object_or_404(Product, pk=pk)
+            serializer = ProductSerializer(product, many=False)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            products = Product.objects.all()
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
 #     elif request.method == "POST":
 #         data = request.data
@@ -103,5 +104,4 @@ class ProductMixinsApiView(mixins.CreateModelMixin,
     
     
     
-    
-    
+#type d'authentification JWT token on utiise le acces token pour acceder aux api

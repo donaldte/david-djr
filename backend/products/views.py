@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from .models import Product
 from django.views.decorators.csrf import csrf_exempt
 
-
+ 
+ # La c'est en utilisant Django
 @csrf_exempt
 def api_view(request):
     if request.method == 'GET':

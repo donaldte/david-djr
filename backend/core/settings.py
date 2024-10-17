@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt',
     
     # Third party apps
     'rest_framework',
@@ -34,6 +35,17 @@ INSTALLED_APPS = [
     # Local apps
     'products',
 ]
+
+
+#ceci permet de donner le temps vs pouvez modifier le temps en seconde
+from datetime import timedelta
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=20),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=50),
+
+    }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
