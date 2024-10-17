@@ -1,3 +1,5 @@
+from .permsions import CanCreateProductPremissions, IsOwnerOrReadOnly
+from .authentication import TokenAuthentication
 from .serializer import ProductSerializer
 from products.models import Product
 from rest_framework.decorators import api_view
@@ -76,9 +78,8 @@ class ProductMixinsApiView(mixins.CreateModelMixin,
     
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [authentication.SessionAuthentication,
-                              authentication.TokenAuthentication] # jwt, #basicAuthToken
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.SessionAuthentication, TokenAuthentication] # jwt, #basicAuthToken
+    permission_classes = [CanCreateProductPremissions]
     
     def get(self, request, pk=None):
         if pk:
