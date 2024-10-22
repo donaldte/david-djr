@@ -5,6 +5,22 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
+
+# Email Backend Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Replace with your preferred backend
+
+EMAIL_HOST = 'smtp.gmail.com'  # Replace with your email host
+EMAIL_PORT = 587  # Replace with your email port
+EMAIL_USE_TLS = True  # Set to False if your email server doesn't use TLS
+EMAIL_HOST_USER = 'paulnicolas519@gmail.com'  # Replace with your email username
+EMAIL_HOST_PASSWORD = 'paul2020'  # Replace with your email password
+
+#classes d’authentification par défaut
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -27,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
+    "corsheaders",
     
     # Third party apps
     'rest_framework',
@@ -34,7 +51,31 @@ INSTALLED_APPS = [
     
     # Local apps
     'products',
+    'accounts',
+   'django_rest_passwordreset', 
+    'Commentaires',
+    'Hotels',
+    'Payements',
+    'Reservations',
+    'Rooms',
+    
+    # 'accounts.apps.AccountsConfig',
 ]
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+ ],
+
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+        'PAGE_SIZE': 6
+    
+    # Other settings...
+}
+
+
 
 
 #ceci permet de donner le temps vs pouvez modifier le temps en seconde
@@ -47,7 +88,13 @@ SIMPLE_JWT = {
 
     }
 
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Use your preferred message broker here
+CELERY_RESULT_BACKEND = 'django-db'  # Use 'redis://' for better performance
+
+
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,7 +109,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR, 'templates/',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,8 +130,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'restapitest',
+        'USER': 'postgres',
+        'PASSWORD': 'Davide2020@@',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -129,3 +180,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOWED_ALL_ORIGINS = True

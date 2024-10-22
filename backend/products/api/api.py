@@ -1,3 +1,5 @@
+from .permsions import CanCreateProductPremissions, IsOwnerOrReadOnly
+from .authentication import TokenAuthentication
 from .serializer import ProductSerializer
 from products.models import Product
 from rest_framework.decorators import api_view , permission_classes
@@ -11,7 +13,7 @@ from rest_framework import permissions
 from rest_framework import authentication
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
-@permission_classes([permissions.IsAdminUser , permissions.IsAuthenticated , permissions.IsAuthenticatedOrReadOnly])
+# @permission_classes([permissions.IsAdminUser , permissions.IsAuthenticated , permissions.IsAuthenticatedOrReadOnly])
 def api_view_products(request, pk=None, *args, **kwargs):
     
     if request.method == "GET":
@@ -77,9 +79,8 @@ class ProductMixinsApiView(mixins.CreateModelMixin,
     
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [authentication.SessionAuthentication,
-                              authentication.TokenAuthentication] # jwt, #basicAuthToken
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.SessionAuthentication, TokenAuthentication] # jwt, #basicAuthToken
+    permission_classes = [CanCreateProductPremissions]
     
     def get(self, request, pk=None):
         if pk:
