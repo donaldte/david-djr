@@ -20,7 +20,7 @@ class CanCreateProductPremissions(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             user = request.user 
-            if user.has_perm('products.add_product'):
+            if user.has_perm('products.add_product'): #app_name.action_modelname
                 return True
         return False     
             
