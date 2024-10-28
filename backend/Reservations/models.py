@@ -17,4 +17,26 @@ class Reservation(models.Model):
 
         def __str__(self):
             return self.hotel + "---" + self.total_price
+        
+
+        def numBooking(self):
+              return Reservation.objects.filter(guest=self).count()
+        
+        def numOfDays(self):
+              totalDays = 0
+              reservations = Reservation.objects.filter(guest=self)
+              for reservation in reservations:
+                    day = reservation.end_date - reservation.start_date
+                    totalDays +=int(day.days)
+                    return totalDays
+              
+              
+        def numOfLastBookingDays(self):
+              try:
+                    return int((Reservation.objects.filter(guest=self).last().end_date -Reservation.objects.filter(guest=self).last().startDate).days)
+              except:
+                    return 0
+              
+        
+              
 

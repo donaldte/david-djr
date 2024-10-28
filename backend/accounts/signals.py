@@ -6,7 +6,7 @@ from .models import CustomUser
 from django.urls import reverse
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django_rest_passwordreset.signals import reset_password_token_created
+# from django_rest_passwordreset.signals import reset_password_token_created
 
 #Créons des signaux pour la vérification de l'e-mail et l'e-mail de bienvenue
 

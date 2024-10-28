@@ -28,8 +28,7 @@ def getCategoryById(request , pk):
 @permission_classes([ permissions.IsAuthenticated , MyPermissions])
 @api_view(['POST'])
 def createCategory(request):
-    data = request.data
-    serializer = CategorySerializer(data , many=False)
+    serializer = CategorySerializer( data = request.data)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
         return Response(serializer.data)
@@ -38,8 +37,7 @@ def createCategory(request):
 @permission_classes([ permissions.IsAuthenticated , MyPermissions , AuthorPermission])
 @api_view(['PUT'])
 def updateCategory(request , pk):
-    data = request.data
-    category = get_object_or_404(Category , pk)
+    category = get_object_or_404(Category , pk=pk)
     serializer = CategorySerializer(instance = category , data = request.data)
     if serializer.is_valid():
         serializer.save()
@@ -50,7 +48,7 @@ def updateCategory(request , pk):
 @permission_classes([ permissions.IsAuthenticated , MyPermissions , AuthorPermission])
 @api_view(['DELETE'])
 def deleteCategory(request , pk):
-    category = get_object_or_404(Category , pk)
+    category = get_object_or_404(Category , pk=pk)
     category.delete()
     return Response('Category was deleted')
 
@@ -65,7 +63,7 @@ def SearchApiView(request , self):
     result = Category.objects.none()
     if q is not None:
         user = None
-    #si l'utilisateur n'a rien entre
+    #si l'utilisateur n'a rien entre 
         if self.request.user.is_authenticated:
             user = self.request.user
     result = qs.search(q , user)

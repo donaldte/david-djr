@@ -11,8 +11,9 @@ def generate_otp(length=6):
     return otp
 
 
-def otp_send_mail(email , otp):
+def otp_send_mail(email):
     subject = 'Votre code OTP'
+    otp = generate_otp()
     message = f'Votre OTP est : {otp}'
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]

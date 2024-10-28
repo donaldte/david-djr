@@ -16,19 +16,13 @@ class   UserSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email']
         )
+#faire une verification du mail et password
         user.set_password(validated_data['password'])
         user.save()
         return user
     
 
-    def create_user(self , email , password=None):
-        if not email :
-            raise ValueError('The email must be set')
-        email = self.normalize_email(email)
-        user = self.model(email=email)
-        user.set_password(password)
-        user.save()
-
+    
 
 class VerifyAccountSerializer(serializers.Serializer):
 
@@ -48,3 +42,4 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class ResetPasswordEqmailSerialier(serializers.Serializer):
     email = serializers.EmailField(required=True)
+ 

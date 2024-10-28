@@ -16,7 +16,7 @@ urlpatterns = [
     path('send_otp_phone/', views.send_otp_phone, name='send_otp_phone'),
     path('verify-code/', views.verify_code_pour_se_loguer, name='verify-code'),
     path('api/change-password/', views.change_password, name='change-password'),
-    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    # path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('api/verify_otp_phnoe/' , views.verify_otp_phnoe, name='verify_otp_phnoe')
 
 ]
