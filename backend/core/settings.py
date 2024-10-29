@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     # Local apps
     'products',
     'accounts',
-   'django_rest_passwordreset', 
+#    'django_rest_passwordreset', 
     'Commentaires',
     'Hotels',
     'Payements',
