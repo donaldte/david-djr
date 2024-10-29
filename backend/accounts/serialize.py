@@ -4,12 +4,12 @@ from .models import CustomUser
 class   UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=255)
-    password = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=255 , write_only=True)
 
     class Meta:
         model = CustomUser
         fields = ['username', 'email', 'password' , 'email_verified' , 'is_phone_verified']
-        extra_kwargs = {'password': {'write_only': True}}
+        
 
     def create(self, validated_data):
         user = CustomUser(
@@ -20,6 +20,12 @@ class   UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+    
+    def validate_email(self , value):
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError('this email is already use in the database')
+        return value
+
     
 
     
