@@ -39,10 +39,12 @@ class CustomPaginationClass1(LimitOffsetPagination):
     max_limit = 1000
 
 
+
 class CustomPaginationClass2(PageNumberPagination):
     page_size = 5
     page_size_query_param = 'page_size'
     max_page_size = 1000
+
 
 
 @api_view(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
@@ -132,7 +134,6 @@ class ProductMixinsApiView(mixins.CreateModelMixin,
             return self.retrieve(request)
         return self.list(request)
     
-    @decorators_permission_classes([permissions.AllowAny])
     def post(self, request):
         return self.create(request)
     

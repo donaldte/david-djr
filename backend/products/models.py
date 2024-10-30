@@ -9,3 +9,16 @@ class Product(models.Model):
     
     def __str__(self):
         return self.name
+    
+    
+    def get_product_name(self):
+        return self.name
+    
+    def get_product_description(self):
+        return self.description
+    
+    def get_product_price(self):
+        return self.price
+    
+    def get_product_owner(self):
+        return self.owner
