@@ -47,7 +47,7 @@ def updateCategory(request , pk):
 
 @permission_classes([ permissions.IsAuthenticated , MyPermissions , AuthorPermission])
 @api_view(['DELETE'])
-def deleteCategory(request , pk):
+def deleteCategory(request , pk): 
     category = get_object_or_404(Category , pk=pk)
     category.delete()
     return Response('Category was deleted')

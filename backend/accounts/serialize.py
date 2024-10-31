@@ -5,6 +5,7 @@ class   UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=255 , write_only=True)
+    password2 =serializers.CharField(style={'input_type': 'password'}, write_only=True)
 
     class Meta:
         model = CustomUser
@@ -25,6 +26,26 @@ class   UserSerializer(serializers.ModelSerializer):
         if CustomUser.objects.filter(email=value).exists():
             raise serializers.ValidationError('this email is already use in the database')
         return value
+    
+
+    def validate_username(self , value):
+        if CustomUser.objects.filter(username=value).exists():
+            raise serializers.ValidationError('This username exists already')
+        return value
+    
+
+    def validate_password(self , value):
+        if CustomUser.objects.filter(password=value).exists():
+            raise serializers.ValidationError('This passord is already exists')
+        return value
+    
+    def validate_two_password(self):
+        password = self.validated_data['password']
+        password2 = self.validated_data['password2']
+
+        if password != password2:
+            raise serializers.ValidationError({"Error": "Password Does not match"})
+        return password
 
     
 
@@ -48,4 +69,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class ResetPasswordEqmailSerialier(serializers.Serializer):
     email = serializers.EmailField(required=True)
+
+
+class VerifyCodeSerializer(serializers.Serializer):
+    class Meta:
+        model = CustomUser
+        username = serializers.CharField(required=True)
+        code = serializers.CharField(required=True)
  

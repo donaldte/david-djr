@@ -3,8 +3,8 @@ from django.shortcuts import redirect
 from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view , permission_classes
-from .serialize import UserSerializer , VerifyAccountSerializer , ChangePasswordSerializer
+from rest_framework.decorators import api_view , permission_classes 
+from .serialize import UserSerializer , VerifyAccountSerializer , ChangePasswordSerializer , VerifyCodeSerializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view
@@ -19,6 +19,7 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from .helpers import send_otp_to_phone
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import authenticate
 
 
 User = get_user_model()
@@ -44,27 +45,22 @@ def register_user(request):
 
 @api_view(['POST'])
 def user_login(request):
+    permission_classes = [permissions.Allowany]
     if request.method == 'POST':
-        username = request.data.get('username')
-        password = request.data.get('password')
-        email = request.data.get('email')
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.validated_data['user']
+            authenticate(request , user)
+            serializer.save()
+            return Response({
+                'status' : 200,
+                'message' : 'login succesfull',
+                'data':serializer.data
+            })
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
-        user = None
-        if '@' in username:
-            try:
-                user = CustomUser.objects.get(email=username)
-            except ObjectDoesNotExist:
-                return Response({'error': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
-
-        otp = generate_otp()
-        user.otp = otp
-        user.save()
-
-        otp_send_mail(email, otp)
-        # send_otp_phone(phone_number, otp)
-
-        return Response({'message': 'OTP has been sent to your email.'}, status=status.HTTP_200_OK)
-
+        
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def user_logout(request):
@@ -76,17 +72,14 @@ def user_logout(request):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
-
-
-
+    
 @api_view(['POST'])
-def verify_code_pour_se_loguer(request):
-    username = request.data.get('username')
-    code = request.data.get('code')
+def verify_code_pour_se_loguer(request , code):
 
+    if request.method == 'POST':
+        serializer = VerifyCodeSerializer(data=request.data)
     try:
-        user = User.objects.get(username=username)
+        user = User.objects.filter(serializer.data.get('code'))
         if user.code == code:
             return Response({'message': 'Code validé avec succès !'}, status=status.HTTP_200_OK)
         else:
@@ -115,7 +108,7 @@ def change_password(request):
 @api_view(['POST'])
 def ValidateOTP(self , request):
         data = request.data
-        serialize = VerifyAccountSerializer(data=data)
+        serialize = VerifyAccountSerializer(data=request.data)
 
         if serialize.is_valid():
             email = serialize.data['email']
@@ -219,7 +212,10 @@ def verify_otp_phnoe(request):
             'status':400,
             'message':'invalid otp'
         })
-    
+
+
+
+
 
 
 
