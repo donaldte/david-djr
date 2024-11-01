@@ -12,8 +12,7 @@ from products.models import Product
 # @pytest.mark.django_db
 # def test_product_description(product):
 #     assert product.get_product_description() == 'testdescription'
-    
-    
+        
 # @pytest.mark.django_db
 # def test_product_price(product):
 #     assert product.get_product_price() == 100
