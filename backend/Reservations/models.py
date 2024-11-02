@@ -22,13 +22,7 @@ class Reservation(models.Model):
         def numBooking(self):
               return Reservation.objects.filter(guest=self).count()
         
-        def numOfDays(self):
-              totalDays = 0
-              reservations = Reservation.objects.filter(guest=self)
-              for reservation in reservations:
-                    day = reservation.end_date - reservation.start_date
-                    totalDays +=int(day.days)
-                    return totalDays
+        
               
               
         def numOfLastBookingDays(self):

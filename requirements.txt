@@ -1,3 +1,6 @@
 django
 django-rest-framework
 requests
+djangorestframework-simplejwt
+corsheaders
+drf-yasg

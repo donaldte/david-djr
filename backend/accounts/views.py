@@ -20,6 +20,7 @@ from django.http import JsonResponse
 from .helpers import send_otp_to_phone
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
 
 
 User = get_user_model()
@@ -45,22 +46,19 @@ def register_user(request):
 
 @api_view(['POST'])
 def user_login(request):
-    permission_classes = [permissions.Allowany]
     if request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.validated_data['user']
-            authenticate(request , user)
-            serializer.save()
-            return Response({
-                'status' : 200,
-                'message' : 'login succesfull',
-                'data':serializer.data
-            })
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+            username = request.data.get('username')
+            password = request.data.get('password')
+            user = authenticate(username=username , password=password)
 
-        
+            if user:
+                token , _ = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key}, status=status.HTTP_200_OK)
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def user_logout(request):
@@ -92,7 +90,7 @@ def verify_code_pour_se_loguer(request , code):
 @permission_classes([IsAuthenticated])
 def change_password(request):
     if request.method == 'POST':
-        serializer = ChangePasswordSerializer(data = request.data)
+        serializer = ChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
             user = request.user
             if user.check_password(serializer.data.get('old_password')):
@@ -138,7 +136,7 @@ def ValidateOTP(self , request):
 
 
 #Créeons une vue pour gérer l'URL de vérification
-
+# @api_view(['POST'])
 def verify_email(request , pk):
     user = CustomUser.objects.get(pk=pk)
     if not user.email_verified:
@@ -177,7 +175,7 @@ def send_otp_phone(request):
 
 
 @api_view(['POST'])
-def verify_otp_phnoe(request):
+def verify_otp_phone(request):
     data = request.data
 
     if data.get('phone_number') is None:

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
     "corsheaders",
+    "django_rest_passwordreset",
     
     # Third party apps
     'rest_framework',

@@ -11,6 +11,6 @@ def api_client() -> APIClient:
 
 @pytest.fixture
 def user() -> CustomUser:
-    return CustomUser   .objects.create_user(email='paulnicolas519@gmail.com', password='12345', otp='2345')
+    return CustomUser   .objects.create_user(email='paulnicolas519@gmail.com', password=' ', otp='2345')
 
 

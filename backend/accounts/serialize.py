@@ -9,7 +9,7 @@ class   UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password' , 'email_verified' , 'is_phone_verified']
+        fields = ['username', 'email', 'password' ,'password2', 'email_verified' , 'is_phone_verified']
         
 
     def create(self, validated_data):
@@ -31,12 +31,6 @@ class   UserSerializer(serializers.ModelSerializer):
     def validate_username(self , value):
         if CustomUser.objects.filter(username=value).exists():
             raise serializers.ValidationError('This username exists already')
-        return value
-    
-
-    def validate_password(self , value):
-        if CustomUser.objects.filter(password=value).exists():
-            raise serializers.ValidationError('This passord is already exists')
         return value
     
     def validate_two_password(self):
