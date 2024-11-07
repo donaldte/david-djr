@@ -1,0 +1,17 @@
+les type de test:
+
+1--> les tests fonctionnels (des fonctionalites du logiciel)
+2--> les tests non fonctionnels (scalabilite, securite)
+
+I- les tests fonctionnels 
+
+ a) --> test unitaires( il s'agit de tester chaque fonctionalite du logiciel)
+ b) --> test d'integration (test de composant ou de modules)
+ c) --> test de regression ( il vont verifier que un nouveau update n'affecte pas les fonctionalite existante)
+ d) --> end to end testing    
+
+TDD: test driven development 
+ 1---> tu ecris test 
+ 2---> lance le test (le test doit echouer)
+ 3---> tu code la fonctionalite
+ 4---> tu relance le test (le doit passer)
