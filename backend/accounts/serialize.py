@@ -6,10 +6,12 @@ class   UserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=255 , write_only=True)
     password2 =serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    telephone = serializers.CharField(max_length=9)
+    reset_code_expiration = serializers.DateTimeField()
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password' ,'password2', 'email_verified' , 'is_phone_verified']
+        fields = ['username', 'email','reset_code_expiration', 'password' , 'telephone','password2', 'email_verified' , 'is_phone_verified' , ]
         
 
     def create(self, validated_data):
@@ -40,6 +42,14 @@ class   UserSerializer(serializers.ModelSerializer):
         if password != password2:
             raise serializers.ValidationError({"Error": "Password Does not match"})
         return password
+    
+
+    def set_password(self , raw_password):
+        super().set_password(raw_password)
+        self.reset_code = ''
+        self.reset_code_expiration = None
+        self.reset_attempts = 0
+        self.save()
 
     
 
@@ -70,4 +80,5 @@ class VerifyCodeSerializer(serializers.Serializer):
         model = CustomUser
         username = serializers.CharField(required=True)
         code = serializers.CharField(required=True)
+
  

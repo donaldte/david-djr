@@ -38,7 +38,7 @@ class Room(models.Model):
         price= models.FloatField(blank=True, null=True) 
         capacity = models.IntegerField()
         total_price = models.FloatField(blank=True, null=True)
-        is_available = models.BooleanField()
+        is_available = models.BooleanField(default=True)
         room_type = models.CharField(choices=room_choices_type)
 
         room_type = models.ForeignKey(

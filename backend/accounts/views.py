@@ -21,11 +21,19 @@ from .helpers import send_otp_to_phone
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
+from django.contrib.auth.hashers import make_password
+from datetime import timedelta
+from django.utils import timezone
+
 
 
 User = get_user_model()
 
-
+#api creation de compte
 @api_view(['POST'])
 def register_user(request):
     if request.method == 'POST':
@@ -42,178 +50,176 @@ def register_user(request):
     
         
 
-# accounts/views.py
 
+#api conexion user
 @api_view(['POST'])
 def user_login(request):
     if request.method == 'POST':
-            username = request.data.get('username')
-            password = request.data.get('password')
-            user = authenticate(username=username , password=password)
-
-            if user:
-                token , _ = Token.objects.get_or_create(user=user)
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = None
+        exist_user = CustomUser.objects.filter(Q(username=username) | Q(email=username) | Q(telephone=username))
+        if exist_user.exists():
+            user = exist_user.first()
+         
+        if user:
+            if user.check_password(password):
+                token , created = Token.objects.get_or_create(user=user)
                 return Response({'token': token.key}, status=status.HTTP_200_OK)
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Invalid Credentials'} , status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error': 'Aucun user trouve'} , status=status.HTTP_404_NOT_FOUND)
+
+    return Response({'error': 'Method non accepte'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 
-
+#api logout user
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def user_logout(request):
     if request.method == 'POST':
         try:
-            # Delete the user's token to logout
+           
             request.user.auth_token.delete()
             return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    
-@api_view(['POST'])
-def verify_code_pour_se_loguer(request , code):
 
-    if request.method == 'POST':
-        serializer = VerifyCodeSerializer(data=request.data)
+#api forgot password envoit un email de renitialisation de mot de passe
+@api_view(['POST'])
+def forgot_password(request):
+    email = request.data.get('email')
     try:
-        user = User.objects.filter(serializer.data.get('code'))
-        if user.code == code:
-            return Response({'message': 'Code validé avec succès !'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'message': 'Code invalide.'}, status=status.HTTP_400_BAD_REQUEST)
-    except User.DoesNotExist:
-        return Response({'message': 'Utilisateur non trouvé.'}, status=status.HTTP_404_NOT_FOUND)
+        user  = CustomUser.objects.get(email=email)
+
+        if user.reset_attempts >= 6:
+            return Response({'error': 'Maximum de tentatives de réinitialisation atteint.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        token = get_random_string(5)
+        user.code = token
+        user.reset_code_expiration = timezone.now() + timedelta(minutes=5) #le code de renitialisatio expire apres 5 minutes
+        user.reset_attempts += 1
+        user.save()
+ # Envoyer l'e-mail avec le lien de réinitialisation
+        send_mail(
+             'Réinitialisation de mot de passe',
+            f'Votre code de réinitialisation est {token}',
+            'from@example.com',
+            [email],
+            fail_silently=False,
+        )
+        return Response({'success': 'Code de réinitialisation envoyé'}, status=status.HTTP_200_OK)
+    
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'Email non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+#api de renitialisation de mot de passe
+@api_view(['POST'])
+def reset_password(request):
+    code = request.data.get('code')
+    new_password = request.data.get('new_password') 
+    email= request.data.get('email')
+# Récupérer l'utilisateur en fonction du code de réinitialisation
+    try:
+        user = CustomUser.objects.get(email=email)
+         # Mettre à jour le mot de passe de l'utilisateur
+       
+        if user.code != code or user.reset_code_expiration < timezone.now():
+            return Response({'error': 'Code de réinitialisation invalide ou expiré.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(new_password)
+        return Response({'success': 'Mot de passe réinitialisé avec succès'}, status=status.HTTP_200_OK)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'Code de réinitialisation invalide'}, status=status.HTTP_400_BAD_REQUEST)
+
+    
+# @api_view(['POST'])
+# def verify_code_email_send(request , code):
+
+#     if request.method == 'POST':
+#         serializer = VerifyCodeSerializer(data=request.data)
+#     try:
+#         user = CustomUser.objects.filter(serializer.data.get('code'))
+#         if user.code == code:
+#             return Response({'message': 'Code validé avec succès !'}, status=status.HTTP_200_OK)
+#         else:
+#             return Response({'message': 'Code invalide.'}, status=status.HTTP_400_BAD_REQUEST)
+#     except User.DoesNotExist:
+#         return Response({'message': 'Utilisateur non trouvé.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def change_password(request):
-    if request.method == 'POST':
-        serializer = ChangePasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            user = request.user
-            if user.check_password(serializer.data.get('old_password')):
-                user.set_password(serializer.data.get('new_password'))
-                user.save()
-                update_session_auth_hash(request , user)  # To update session after password change
-                return Response({'message': 'Password changed successfully.'}, status=status.HTTP_200_OK)
-            return Response({'error': 'Incorrect old password.'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#pour renitialiser le mot de passe il y'a deja un framework integre a django pour cela
+    user = request.user
+    current_password = request.data.get('current_password')
+    new_password = request.data.get('new_password')
 
-@api_view(['POST'])
-def ValidateOTP(self , request):
-        data = request.data
-        serialize = VerifyAccountSerializer(data=request.data)
+# Vérifiez que le mot de passe actuel est correct
 
-        if serialize.is_valid():
-            email = serialize.data['email']
-            otp = serialize.data['otp']
+    if not user.check_password(current_password):
+        return Response({'error': 'Le mot de passe actuel est incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            user = CustomUser.objects.filter(email = email)
+    user.set_password(new_password)
+    user.save()
 
-            if not user.exists():
-                return Response({
-                    'status': 400 ,
-                    'message':'something ',
-                    'data':'Invalid email'
-                })
-        if user.first().otp !=otp:
-             return Response({
-                    'status': 400 ,
-                    'message':'something ',
-                    'data':'Invalid email'
-                })
-        user.first().is_active = True
-        user.first().save()
-        return Response({
-                    'status': 400 ,
-                    'message':'account verify ',
-                    'data':{}
-                }) 
+    # Met à jour la session de l'utilisateur
+    update_session_auth_hash(request, user)
+
+    return Response({'success': 'Mot de passe changé avec succès.'}, status=status.HTTP_200_OK)
+       
+
+
+
+
+
 
 
 #Créeons une vue pour gérer l'URL de vérification
 # @api_view(['POST'])
-def verify_email(request , pk):
+def verify_email(request , email):
     user = CustomUser.objects.get(pk=pk)
     if not user.email_verified:
         user.email_verified = True
         user.save()
-        return redirect('http://localhost:8000/')  # Replace with your desired redirect URL
-    
+        return redirect('http://localhost:8000/')
+      # Replace with your desired redirect URL
+      
 
-@api_view(['POST'])
-def send_otp_phone(request):
-    data = request.data
+#Récupère le profil de l'utilisateur authentifié.
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_profile(request):
+    user = request.user
+
+    profile_data = {
+        'username': user.username,
+        'email' : user.email,
+    }
+
+    return Response(profile_data , status=status.HTTP_200_OK)
 
 
-    if data.get('phone_number') is None:
-        return Response({
-            'status':400,
-            'message':'key phone_number is required'
-        })
-    
+#Met à jour les informations du profil de l'utilisateur.
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    user = request.user
+    username = request.data.get('username' , user.username)
+    email = request.data.get('email' , user.email)
 
-    if data.get('password') is None:
-        return Response({
-            'status':400,
-            'message':'key password is required'
-        })
-    
 
-    user = User.objects.create(phone_number = data.get('phone_number'),
-    otp = send_otp_to_phone(data.get('phone_number')
-    ))
-    user.set_password = data.get('set_password')
+    user.username = username
+    user.email = email
+
     user.save()
-
-    return Response({'message': 'OTP send.'}, status=status.HTTP_404_NOT_FOUND)
-
+    return Response({'success': 'Profile updated successfully'}, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
-def verify_otp_phone(request):
-    data = request.data
-
-    if data.get('phone_number') is None:
-        return Response({
-            'status':400,
-            'message':'key phone_number is required'
-        })
-    
-
-    if data.get('otp') is None:
-        return Response({
-            'status':400,
-            'message':'key password is required'
-        })
-    try:
-        user_object = CustomUser.objects.create(phone_number = data.get('phone_number')),
-    except Exception as e:
-        return Response({
-            'status':400,
-            'message':'invalid phone'
-        })
-    if user_object.otp == data.get('otp'):
-        user_object.is_phone_verified = True
-        user_object.save()
-        
-        return Response({
-            'status':400,
-            'message':'otp matched'
-        })
-
-    return Response({
-            'status':400,
-            'message':'invalid otp'
-        })
-
-
-
-
-
+#Supprime le compte de l'utilisateur.
 
 

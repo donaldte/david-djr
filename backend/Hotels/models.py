@@ -11,5 +11,5 @@ class Hotel(models.Model):
         notation = models.FloatField(default=1)
 
         def __str__(self):
-            return self.name + "---" + self.notation
+            return self.name + "---" + self.email
 

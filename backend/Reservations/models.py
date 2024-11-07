@@ -15,22 +15,10 @@ class Reservation(models.Model):
         total_price = models.FloatField(blank=True, null=True)
         status = models.CharField(choices=status)
 
-        def __str__(self):
-            return self.hotel + "---" + self.total_price
-        
 
-        def numBooking(self):
-              return Reservation.objects.filter(guest=self).count()
-        
-        
-              
-              
-        def numOfLastBookingDays(self):
-              try:
-                    return int((Reservation.objects.filter(guest=self).last().end_date -Reservation.objects.filter(guest=self).last().startDate).days)
-              except:
-                    return 0
-              
+
+        def __str__(self):
+            return f"Reservation de {self.user.username} pour la chambre {self.room.room_number}"
         
               
 
