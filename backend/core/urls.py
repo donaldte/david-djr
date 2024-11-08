@@ -7,7 +7,7 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from products.api.accounts.api import RegisterViewApi
+from products.api.accounts.api import ProfileViewApi, RegisterViewApi
 
 
 schema_view = get_schema_view(
@@ -30,12 +30,13 @@ urlpatterns_doc = [
    
 ]
 
-from rest_registration.api.views import login, change_password, reset_password, send_reset_password_link 
+from rest_registration.api.views import login, change_password, reset_password, send_reset_password_link
 
 urlpatterns = [
     #path('accounts/', include('rest_registration.api.urls')),
     path('accounts/login/', login, name='login'),
     path('accounts/registration/', RegisterViewApi.as_view(), name='registration'),
+    path('accounts/profile/', ProfileViewApi.as_view(), name='profile'),
     path('admin/', admin.site.urls),
     path('api/v1/', include('products.urls')),
 ]
