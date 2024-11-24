@@ -14,6 +14,6 @@ class Commentaire(models.Model):
         room = models.ForeignKey(Room , on_delete=models.CASCADE, null=True, blank=True)
 
         def __str__(self):
-            return self.hotel + "---" + self.notation
+            return self.commentaire 
 
 

@@ -114,7 +114,7 @@ def updateReservationView(request , pk):
      return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
 
 @permission_classes([ permissions.IsAuthenticated])
-@permission_classes([ permissions.IsAuthenticate])
+@permission_classes([ permissions.IsAuthenticated])
 @api_view(['PATCH'])
 def updatePartialReservation(request , pk):
     reservation = get_object_or_404(Reservation , pk)
