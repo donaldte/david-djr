@@ -1,3 +1,5 @@
 django
 django-rest-framework
 requests
+gunicorn==21.2.0
+python-decouple
