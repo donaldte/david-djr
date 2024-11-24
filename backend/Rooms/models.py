@@ -35,10 +35,10 @@ class Room(models.Model):
         hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, null=True, blank=True)
         user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
         room_number = models.CharField()
-        price= models.FloatField(blank=True, null=True) 
+        price= models.FloatField(blank=True, null=True , default=100) 
         capacity = models.IntegerField()
         total_price = models.FloatField(blank=True, null=True)
-        is_available = models.BooleanField(default=True)
+        is_available = models.BooleanField(default=False)
         room_type = models.CharField(choices=room_choices_type)
 
         room_type = models.ForeignKey(

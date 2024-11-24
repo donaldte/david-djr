@@ -1,14 +1,8 @@
 from rest_framework import serializers
-from .models import Reservation
+from .models import Commentaire
 
 
 class ReservationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Reservation
+        model = Commentaire
         field = '__all__'
-
-
-
-
-
-
