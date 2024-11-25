@@ -51,50 +51,15 @@ INSTALLED_APPS = [
     # Third party apps
     'rest_framework',
     'rest_framework.authtoken',
-    
-    # Local apps
-    'products',
+    'drf_yasg',
     'accounts',
-#    'django_rest_passwordreset', 
     'Commentaires',
-    'Hotels',
     'Payements',
     'Reservations',
-    'Rooms', 
-    
-    # 'accounts.apps.AccountsConfig',
+    'Rooms',
+    'Hotels',
+    'products',
 ]
-
-
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
- ],
-
-        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-        'PAGE_SIZE': 6
-    
-    # Other settings...
-}
-
-
-
-
-#ceci permet de donner le temps vs pouvez modifier le temps en seconde
-from datetime import timedelta
-
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=20),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=50),
-
-    }
-
-# Celery Configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Use your preferred message broker here
-CELERY_RESULT_BACKEND = 'django-db'  # Use 'redis://' for better performance
-
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

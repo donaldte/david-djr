@@ -4,3 +4,5 @@ requests
 djangorestframework-simplejwt
 corsheaders
 drf-yasg
+pytest-django
+drf-yasg

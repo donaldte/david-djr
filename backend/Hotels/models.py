@@ -7,9 +7,9 @@ class Hotel(models.Model):
         description = models.CharField(max_length=50)
         phone_number = models.CharField(max_length=50)
         email = models.EmailField()
+        city = models.CharField(max_length=100 , null=True, blank=True)
         # img = models.ImageField(upload_to="hotel/" )
         notation = models.FloatField(default=1)
 
         def __str__(self):
-            return self.name + "---" + self.email
-
+            return self.description

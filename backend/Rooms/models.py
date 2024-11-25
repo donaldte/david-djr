@@ -39,13 +39,21 @@ class Room(models.Model):
         capacity = models.IntegerField()
         total_price = models.FloatField(blank=True, null=True)
         is_available = models.BooleanField(default=False)
-        room_type = models.CharField(choices=room_choices_type)
+        room_type = models.CharField(choices=room_choices_type , null=True, blank=True)
 
-        room_type = models.ForeignKey(
-        RoomType,
-        related_name="room_type",
-        on_delete=models.CASCADE,
-    )
+    #     room_type = models.ForeignKey(
+    #     RoomType,
+    #     related_name="room_type",
+    #     on_delete=models.CASCADE,
+    # )
 
         def __str__(self):
-            return self.hotel + "---" + self.room_number
+            return self.room_number
+
+
+class Promotion(models.Model):
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE)
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    description = models.TextField()

@@ -13,9 +13,12 @@ class ProductSerializer(serializers.ModelSerializer):
         
     def create(self, validated_data):
         request = self.context.get('request')
-        user = request.user
-        validated_data['owner'] = user
-        return super().create(validated_data)    
+        if request and hasattr(request, 'user'):
+            user = request.user
+            validated_data['owner'] = user
+            return super().create(validated_data) 
+          
+        return super().create(validated_data) 
         
     def validate_name(self, value):
         if len(value) < 2:

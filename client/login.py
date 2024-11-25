@@ -11,18 +11,27 @@ data = {
     'password': password
 }
 
+product_data = {
+    'name': 'New Product new',
+    'description': 'New Product Description',
+    'price': 100
+}
+
 r = requests.post(login_endpoint, data=data)
 
 if r.status_code == 200:
     token = r.json().get('token')
+    print(token)
    
     headers = {
-        'Authorization': f'Token {token}' #Bearer Token, jwt
+        'Authorization': f'Bearer {token}' #Bearer Token, jwt
     }
     
-    r = requests.get(endpoint, headers=headers)
+    r = requests.post(endpoint, headers=headers, json=product_data)
     
     print(r.json())
 
 else:
-    print('Invalid credentials')    
+    r= requests.post(endpoint, json=product_data)
+    
+    print(r.json())    

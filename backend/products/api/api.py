@@ -17,8 +17,9 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 
-
 #cette classe permet de definir le nombre de fois kon peut faire appel a une API selon le service auquel on ' souscrit
+
+
 class CustomThrottle(UserRateThrottle, AnonRateThrottle):
     # def __init__(self, rate='1/day', scope='custom', rate_key='ip', **kwargs):
     #     self.scope = scope
@@ -34,13 +35,9 @@ class CustomThrottle(UserRateThrottle, AnonRateThrottle):
 #     scope = 'custom'
 #     rate = '5/day'
 #     rate_key = 'ip'      
-
-
-#permet de gerer la paggination
 class CustomPaginationClass1(LimitOffsetPagination):
     default_limit = 5
     max_limit = 1000
-
 
 class CustomPaginationClass2(PageNumberPagination):
     page_size = 5
@@ -135,7 +132,9 @@ class ProductMixinsApiView(mixins.CreateModelMixin,
             return self.retrieve(request)
         return self.list(request)
     
+
     @decorators_permission_classes([permissions.AllowAny])
+
     def post(self, request):
         return self.create(request)
     

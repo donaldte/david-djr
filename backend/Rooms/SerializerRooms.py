@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from .models import Room
+from Hotels import serializerHotels
 
 
-class ReservationSerializer(serializers.ModelSerializer):
+class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         field = '__all__'
