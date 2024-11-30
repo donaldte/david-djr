@@ -22,7 +22,7 @@ from products.api.accounts.api import ProfileViewApi, RegisterViewApi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="DAVID API",
+      title="API BOOKING HOTELS",
       default_version='v1',
       description="Test description",
       terms_of_service="https://www.google.com/policies/terms/",
@@ -40,23 +40,16 @@ urlpatterns_doc = [
    
 ]
 
-from rest_registration.api.views import login, change_password, reset_password, send_reset_password_link
+# from rest_registration.api.views import login, change_password, reset_password, send_reset_password_link
 
 urlpatterns = [
-    #path('accounts/', include('rest_registration.api.urls')),
-    path('accounts/login/', login, name='login'),
-    path('accounts/registration/', RegisterViewApi.as_view(), name='registration'),
-    path('accounts/profile/', ProfileViewApi.as_view(), name='profile'),
     path('admin/', admin.site.urls),
-    path('api/v1/', include('products.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/reservations/', include('Reservations.urls')),
-    # path('api/category/' , include('category.urls')),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
-
+    path('api/commentaires/', include('Commentaires.urls')),
+    path('api/payements/', include('Payements.urls')),
+    path('api/rooms/', include('Rooms.urls')),
+    path('api/hotels/', include('Hotels.urls')),
 ]
 
 

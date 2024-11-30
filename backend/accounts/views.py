@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.conf import settings
-from rest_framework import status
+from rest_framework import status 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view , permission_classes 
 from .serialize import UserSerializer , VerifyAccountSerializer , ChangePasswordSerializer , VerifyCodeSerializer
@@ -28,6 +28,8 @@ from django.db.models import Q
 from django.contrib.auth.hashers import make_password
 from datetime import timedelta
 from django.utils import timezone
+from accounts.models import Profile
+from accounts.serialize import ProfileSerializer
 
 
 
@@ -136,20 +138,6 @@ def reset_password(request):
         return Response({'error': 'Code de réinitialisation invalide'}, status=status.HTTP_400_BAD_REQUEST)
 
     
-# @api_view(['POST'])
-# def verify_code_email_send(request , code):
-
-#     if request.method == 'POST':
-#         serializer = VerifyCodeSerializer(data=request.data)
-#     try:
-#         user = CustomUser.objects.filter(serializer.data.get('code'))
-#         if user.code == code:
-#             return Response({'message': 'Code validé avec succès !'}, status=status.HTTP_200_OK)
-#         else:
-#             return Response({'message': 'Code invalide.'}, status=status.HTTP_400_BAD_REQUEST)
-#     except User.DoesNotExist:
-#         return Response({'message': 'Utilisateur non trouvé.'}, status=status.HTTP_404_NOT_FOUND)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -173,12 +161,6 @@ def change_password(request):
     return Response({'success': 'Mot de passe changé avec succès.'}, status=status.HTTP_200_OK)
        
 
-
-
-
-
-
-
 #Créeons une vue pour gérer l'URL de vérification
 # @api_view(['POST'])
 def verify_email(request , email):
@@ -188,38 +170,34 @@ def verify_email(request , email):
         user.save()
         return redirect('http://localhost:8000/')
       # Replace with your desired redirect URL
-      
-
-#Récupère le profil de l'utilisateur authentifié.
+    
+#Récupère le profil de l'utilisateur authentifié et connecte.
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_profile(request):
-    user = request.user
+def get_user_profile(request):
+    try:
+        profile = Profile.objects.get(user=request.user)
 
-    profile_data = {
-        'username': user.username,
-        'email' : user.email,
-    }
+    except Profile.DoesNotExist:
+        return Response({"error":"Profil de l'utilisateur non trouve"} , status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = ProfileSerializer(profile , many=False)
+    return Response(serializer.data , status=status.HTTP_200_OK)
 
-    return Response(profile_data , status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_profile(request):
+        profiles = Profile.objects.all()
+        serializer = ProfileSerializer(profiles , many=True)
+        return Response(serializer.data , status=status.HTTP_200_OK)
 
 
 #Met à jour les informations du profil de l'utilisateur.
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def update_profile(request):
-    user = request.user
-    username = request.data.get('username' , user.username)
-    email = request.data.get('email' , user.email)
 
 
-    user.username = username
-    user.email = email
-
-    user.save()
-    return Response({'success': 'Profile updated successfully'}, status=status.HTTP_200_OK)
-
-
+    
+       
 #Supprime le compte de l'utilisateur.
 
 

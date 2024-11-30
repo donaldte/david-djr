@@ -10,7 +10,7 @@ def generate_otp(length=6):
     otp = ''.join(random.choice(characters) for  _ in range(length))
     return otp
 
-
+  
 def otp_send_mail(email):
     subject = 'Votre code OTP'
     otp = generate_otp()

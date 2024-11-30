@@ -18,3 +18,18 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+
+
+class Profile(models.Model):
+        user = models.OneToOneField(CustomUser , on_delete=models.CASCADE)
+        bio = models.TextField(blank=True , null=True)
+        # profile_picture = models.ImageField(upload_to='profile_pics' , blank=True, null=True)
+        region = models.CharField(max_length=30 , blank=True , null=True)
+
+
+        class Meta:
+            ordering = ['region']
+
+        def __str__(self) :
+            return f"{self.bio} {self.region}"

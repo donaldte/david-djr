@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser
+from accounts.models import Profile
 
 class   UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
@@ -50,6 +51,20 @@ class   UserSerializer(serializers.ModelSerializer):
         self.reset_code_expiration = None
         self.reset_attempts = 0
         self.save()
+
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['user' , 'bio' , 'profile_picture' , 'region']
+
+
+    def validate_bio(self , value):
+        if len(value) > 500:
+            raise serializers.ValidationError("La bio ne peut pas depasser 500 caracteres.")
+        return value
+
 
     
 

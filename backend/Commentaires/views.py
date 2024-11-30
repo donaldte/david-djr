@@ -83,11 +83,11 @@ def updateCommentaireView(request , pk):
           return Response(serializer.data)
      return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
 
+
 @permission_classes([ permissions.IsAuthenticated])
-@permission_classes([ permissions.IsAuthenticate])
 @api_view(['PATCH'])
 def updatePartialCommentaireView(request , pk):
-    commentaires = get_object_or_404(Commentaire , pk)
+    commentaires = get_object_or_404(Commentaire , pk=pk)
     serializer = serializersCommentaire(instance=commentaires, data=request.data , partial=True)
 
     try:

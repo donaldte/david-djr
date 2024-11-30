@@ -5,9 +5,12 @@ from Hotels import serializerHotels
 
 
 class CommentaireSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    room = SerializerRooms()
-    hotel = serializerHotels()
     class Meta:
         model = Commentaire
         field = '__all__'
+
+
+    def validate_commentaire(value , self):
+        if len(value) > 500:
+            raise serializers.ValidationError("Le commentaire ne peut pas depasser 500 caracteres")
+        return value
