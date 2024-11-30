@@ -1,24 +1,25 @@
 from rest_framework import serializers
 from .models import CustomUser
 from accounts.models import Profile
+import re
 
 class   UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=255 , write_only=True)
-    password2 =serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    confirm_password =serializers.CharField(style={'input_type': 'password'}, write_only=True)
     telephone = serializers.CharField(max_length=9)
     reset_code_expiration = serializers.DateTimeField()
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email','reset_code_expiration', 'password' , 'telephone','password2', 'email_verified' , 'is_phone_verified' , ]
-        
+        fields = ['username', 'email','reset_code_expiration', 'password' , 'telephone','confirm_password', 'email_verified' , 'is_phone_verified' , ]
 
     def create(self, validated_data):
         user = CustomUser(
             username=validated_data['username'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            telephone=validated_data['telephone']
         )
 #faire une verification du mail et password
         user.set_password(validated_data['password'])
@@ -36,13 +37,30 @@ class   UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('This username exists already')
         return value
     
-    def validate_two_password(self):
-        password = self.validated_data['password']
-        password2 = self.validated_data['password2']
+    def validate(self, data):
+        # Récupérer les deux mots de passe
+        password = data.get('password')
+        confirm_password = data.get('confirm_password')
 
-        if password != password2:
-            raise serializers.ValidationError({"Error": "Password Does not match"})
-        return password
+        # Vérifier si les mots de passe correspondent
+        if password != confirm_password:
+            raise serializers.ValidationError({"Error": "Les mots de passe ne correspondent pas."})
+
+        return data  # Si tout est bon, retourner les données validées
+    
+
+    
+    def validate_password(self , value):
+        if len(value) < 8:
+            raise serializers.ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
+        if not re.search(r'[A-Z]', value):  # Vérifie la présence d'une majuscule
+            raise serializers.ValidationError("Le mot de passe doit contenir au moins une lettre majuscule.")
+        
+        if not re.search(r'\d', value):  # Vérifie la présence d'un chiffre
+            raise serializers.ValidationError("Le mot de passe doit contenir au moins un chiffre.")
+        return value
+        
+        
     
 
     def set_password(self , raw_password):
