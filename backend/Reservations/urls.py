@@ -14,4 +14,5 @@ urlpatterns = [
     path('reservation/update/<int:pk>/' , views.updateReservationView),
     path('reservation/delete/<int:pk>/' , views.deleteReservationView),
     path('reservation/update/partiel/<int:pk>/' , views.updatePartialReservation),
+    path('reservation/count/' , views.countAllResvation),
 ]

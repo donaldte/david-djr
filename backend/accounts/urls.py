@@ -3,7 +3,7 @@ from .views import register_user, get_user_profile ,  user_login, user_logout   
 from . import views
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
-    # TokenObtainPairView,
+    TokenObtainPairView,
     TokenRefreshView,
 )
 
@@ -22,7 +22,7 @@ urlpatterns = [
     path('api/change-password/', views.change_password, name='change-password'),
     path('send_otp_phone/', views.send_otp_phone, name='send_otp_phone'),
      path('forgot-password/', views.forgot_password, name='forgot_password'),
-     path('api/token/', UserTokenObtainPairView.as_view(), name='token_obtain_pair'),
+     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 

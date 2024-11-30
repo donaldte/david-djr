@@ -13,8 +13,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import permissions
 from Reservations.serializerReservation import ReservationSerializer
 from datetime import datetime
+from Reservations.Permissions import IsHotelManager
 
-@permission_classes([ permissions.IsAuthenticated])
+@permission_classes([ permissions.IsAuthenticated , IsHotelManager])
 @api_view(['GET'])
 def getAllReservation(request):
     reservations = Reservation.objects.all()
@@ -26,7 +27,7 @@ def getAllReservation(request):
 @api_view(['GET'])
 def countAllResvation(request):
     reservations = Reservation.objects.all().count()
-    serializer = serializerReservation(reservations , many=True)
+    serializer = ReservationSerializer(reservations , many=True)
     return Response(serializer.data)
 
 
@@ -120,7 +121,7 @@ def count_reservations(self, request , *args, **kwargs):
         count = Reservation.objects.filter(utilisateur=request.user, date_debut__gte=start_date).count()
         return Response({"count": count}, status=status.HTTP_200_OK)
 
-@permission_classes([ permissions.IsAuthenticated])
+@permission_classes([ permissions.IsAuthenticated , IsHotelManager])
 @api_view(['DELETE'])
 def deleteReservationView(request , pk):
      reservation = get_object_or_404(Reservation , pk=pk)

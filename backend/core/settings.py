@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     "corsheaders",
     "django_rest_passwordreset",
+    'drf_spectacular',
     
     # Third party apps
     'rest_framework',
@@ -58,9 +59,19 @@ INSTALLED_APPS = [
     'Reservations',
     'Rooms',
     'Hotels',
-    'django_filters',
+    'django_filters'
+    
     # 'products',
 ]
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Send Cash Money',
+    'DESCRIPTION': 'Mon projet de Reservation dhotel',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 
 
 REST_FRAMEWORK = {
@@ -68,7 +79,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ) , 
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
