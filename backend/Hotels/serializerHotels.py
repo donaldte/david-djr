@@ -5,4 +5,4 @@ from .models import Hotel
 class HotelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hotel
-        field = '__all__'
+        fields = '__all__'

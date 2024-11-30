@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import render
 
 from django.shortcuts import render
-from Hotels.models import Hotel
+from Hotels.models import Hotel , HotelFilter
 from Rooms.models import Room
 from rest_framework.decorators import api_view , permission_classes
 from django.shortcuts import get_object_or_404
@@ -15,12 +15,33 @@ from django.utils import timezone
 from datetime import timedelta
 from rest_framework.exceptions import ValidationError
 from rest_framework import permissions
+from rest_framework import filters
+from django_filters import rest_framework as django_filters
+from .serializerHotels import HotelSerializer
 
-@permission_classes([ permissions.IsAuthenticated])
-@api_view(['GET'])
+
+
+#affiche les hotels avec la possibilte de filtrer en fonction des criteres specifiques
+@permission_classes([IsAuthenticated])  # Permet d'exiger que l'utilisateur soit authentifié
+@api_view(['GET'])  # La vue accepte seulement les requêtes GET
 def getAllHotels(request):
-    hotels = Hotel.objects.all()
-    serializer = serializerHotels(hotels , many=True)
+    # Appliquer les filtres aux hôtels
+    queryset = Hotel.objects.all()
+    hotel_filter = HotelFilter(request.GET, queryset=queryset)
+    
+    if hotel_filter.is_valid():  # Si les filtres sont valides
+        queryset = hotel_filter.qs
+    
+    # Ordonnancement par prix (par défaut)
+    ordering = request.GET.get('ordering', 'price_per_night')  # Récupérer un paramètre d'ordre s'il existe
+    queryset = queryset.order_by(ordering)
+
+    #Ordonnacement par ville
+    
+    
+    # Sérialisation des hôtels
+    serializer = HotelSerializer(queryset, many=True)
+    
     return Response(serializer.data)
 
 
@@ -91,6 +112,11 @@ def updatePartialHotels(request , pk):
     except ValidationError as e:
         return Response(serializer.errors , status=status.HTTP_400_BAD_REQUEST)
     return Response({'detail':'Erreur inattendue lors de la mise en jours hotel'} , status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+     
+     
 
     
 

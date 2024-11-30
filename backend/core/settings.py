@@ -58,8 +58,15 @@ INSTALLED_APPS = [
     'Reservations',
     'Rooms',
     'Hotels',
+    'django_filters',
     # 'products',
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
