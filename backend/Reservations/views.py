@@ -135,7 +135,7 @@ def deleteReservationView(request , pk):
 @api_view(['PUT'])
 def updateReservationView(request , pk):
      reservation = get_object_or_404(Reservation, pk=pk)
-     serializer = serializerReservation(instance=reservation , data = request.data)
+     serializer = ReservationSerializer(instance=reservation , data = request.data)
      if serializer.is_valid(raise_exception=True):
           serializer.save()
           return Response(serializer.data)

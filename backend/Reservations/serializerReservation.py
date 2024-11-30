@@ -53,7 +53,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             start_date = instance.start_date
             end_date = instance.end_date
             number_of_days = (end_date - start_date).days
-            instance.total_price = room.price_per_night * number_of_days
+            instance.total_price = room.price * number_of_days 
 
 
         instance.save()
