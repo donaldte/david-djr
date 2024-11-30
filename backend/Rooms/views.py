@@ -10,11 +10,12 @@ from rest_framework import permissions
 from rest_framework import authentication
 from .permissions import PermissionsAddRomm , CanUpdateRoomPermissions , AuthorRoomsPermissions
 from rest_framework.exceptions import ValidationError
+from Rooms.SerializerRooms import RoomSerializer
 
 @api_view(['GET'])
 def GetAllRooms(request):
     rooms = Room.objects.all()
-    serializer = SerializerRooms(rooms , many=True)
+    serializer = RoomSerializer(rooms , many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -26,7 +27,7 @@ def GetRoomById(request , pk):
 @permission_classes([ permissions.IsAuthenticated , PermissionsAddRomm])
 @api_view(['POST'])
 def createRoomView(request):
-    serializer = SerializerRooms(data = request.data)
+    serializer = RoomSerializer(data = request.data)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
         return Response(serializer.data)

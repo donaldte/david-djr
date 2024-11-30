@@ -6,4 +6,4 @@ from Hotels import serializerHotels
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
-        field = '__all__'
+        fields = '__all__'

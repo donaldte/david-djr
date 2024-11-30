@@ -11,12 +11,14 @@ from django.utils import timezone
 from datetime import timedelta
 from rest_framework.exceptions import ValidationError
 from rest_framework import permissions
+from Reservations.serializerReservation import ReservationSerializer
+from datetime import datetime
 
 @permission_classes([ permissions.IsAuthenticated])
 @api_view(['GET'])
 def getAllReservation(request):
     reservations = Reservation.objects.all()
-    serializer = serializerReservation(reservations , many=True)
+    serializer = ReservationSerializer(reservations , many=True)
     return Response(serializer.data)
 
 
@@ -37,41 +39,67 @@ def getReservationById(request , pk):
     return Response(serializer.data)
 
 
-@permission_classes([ permissions.IsAuthenticated])
+@permission_classes([IsAuthenticated])  # Utilisation du décorateur pour exiger une authentification
 @api_view(['POST'])
-def  CreateReservationView(request):
-        room_id = request.data.get('room')
-        check_in = request.data.get('start_date')   
-        check_out = request.data.get('end_date')
+def CreateReservationView(request):
+
+    if not request.user.is_authenticated:
+          return Response({"detail": "Vous devez être connecté pour effectuer une réservation."}, 
+                         status=status.HTTP_401_UNAUTHORIZED)
+       
+    # Récupérer les données de la requête
+    room_id = request.data.get('room')
+    check_in = request.data.get('start_date')
+    check_out = request.data.get('end_date')
+
+    try:
+        # Tentative de récupération de la chambre depuis l'ID
+        room = Room.objects.get(id=room_id)
+
+        # Vérifier si la chambre est disponible
+        if not room.is_available:
+            return Response({"detail": "Chambre non disponible"}, status=status.HTTP_400_BAD_REQUEST)
+        
 
         try:
-            room = Room.objects.get(id=room_id)
+            check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()  # Format : 'YYYY-MM-DD'
+            check_out_date = datetime.strptime(check_out, '%Y-%m-%d').date()
+        except ValueError:
+            return Response({"detail": "Le format des dates est incorrect. Utilisez 'YYYY-MM-DD'."}, 
+                             status=status.HTTP_400_BAD_REQUEST)
+        
 
-            if not room.is_available:
-                return Response({"detail": "Chambre non disponible"}, status=status.HTTP_400_BAD_REQUEST)
+        # Calcul du nombre de jours pour la réservation
+        days = (check_out_date - check_in_date).days
 
-            # Créer la réservation
-            reservation = Reservation(
-                user=request.user,
-                room=room,
-                check_in=check_in,
-                check_out=check_out
-            )
 
-            reservation.save()
-            reservation.status = 'confirmee'
-            reservation.save()
-            return Response(serializerReservation(reservation).data , status=status.HTTP_201_CREATED)
+        # Créer la réservation si la chambre est disponible
+        reservation = Reservation(
+            user=request.user,
+            room=room,
+            start_date=check_in_date,
+            end_date=check_out_date,
+            total_price=room.price * days,  # Exemple de calcul du prix total
+            status='CONFIRMEE'  # Statut par défaut lors de la création de la réservation
+        )
 
-        except Exception as e:
-            # Mettre à jour la disponibilité de la chambre
-            room.is_available = False
-            room.save()
+        # Enregistrer la réservation
+        reservation.save()
 
-            return Response({"detail": "Réservation acceptée"}, status=status.HTTP_201_CREATED)
+        # Marquer la chambre comme non disponible
+        room.is_available = False
+        room.save()
 
-        except Room.DoesNotExist:
-            return Response({"detail": "Chambre non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+        # Retourner une réponse avec les détails de la réservation
+        return Response(ReservationSerializer(reservation).data, status=status.HTTP_201_CREATED)
+
+    except Room.DoesNotExist:
+        # Si la chambre n'existe pas, renvoyer une erreur 404
+        return Response({"detail": "Chambre non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        # Gérer d'autres erreurs génériques
+        return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #compter le nombre de reservation d'un utilisateur
 @permission_classes([ permissions.IsAuthenticated])
