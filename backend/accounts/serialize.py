@@ -2,8 +2,56 @@ from rest_framework import serializers
 from .models import CustomUser
 from accounts.models import Profile
 import re
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
 
-class   UserSerializer(serializers.ModelSerializer):
+
+
+UserCustomer = get_user_model()
+
+class UserTokenObtainPairSerializer(TokenObtainSerializer):
+
+    @classmethod
+    def get_token(cls, user):
+        """
+        Get the token for the user and mark the last login date of the user
+        """
+        from django.utils import timezone
+        _obj = user
+        _obj.last_login = timezone.now()
+        _obj.save()
+        return RefreshToken.for_user(user)
+
+    def validate(self, attrs):
+        data = {}
+        password = attrs['password']
+        username = attrs['username']
+
+        print(username , password)
+
+        user = UserCustomer.objects.get(Q(email=username) | Q(phone_number=username) | Q(username=username))
+
+        if user.check_password(password):
+
+            refresh = self.get_token(user)
+
+            data["refresh"] = str(refresh)
+            data["access"] = str(refresh.access_token)
+            data["user"] = UserSerializer(user).data
+            return data
+
+        else:
+
+            print(user, 'bonjour')
+
+            raise serializers.ValidationError("Invalid credentials")
+        
+
+
+
+class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=255 , write_only=True)
@@ -49,7 +97,7 @@ class   UserSerializer(serializers.ModelSerializer):
         return data  # Si tout est bon, retourner les données validées
     
 
-    
+
     def validate_password(self , value):
         if len(value) < 8:
             raise serializers.ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
@@ -69,7 +117,6 @@ class   UserSerializer(serializers.ModelSerializer):
         self.reset_code_expiration = None
         self.reset_attempts = 0
         self.save()
-
 
 
 class ProfileSerializer(serializers.ModelSerializer):

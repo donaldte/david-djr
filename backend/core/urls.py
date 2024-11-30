@@ -2,14 +2,6 @@
 from django.contrib import admin
 from django.urls import path, include
 # from rest_framework.views import verify_email
-from rest_framework_simplejwt.views import TokenVerifyView
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
-
-
-
 
 
 from django.urls import re_path
@@ -43,13 +35,14 @@ urlpatterns_doc = [
 # from rest_registration.api.views import login, change_password, reset_password, send_reset_password_link
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/accounts/', include('accounts.urls')),
-    path('api/reservations/', include('Reservations.urls')),
-    path('api/commentaires/', include('Commentaires.urls')),
-    path('api/payements/', include('Payements.urls')),
-    path('api/rooms/', include('Rooms.urls')),
-    path('api/hotels/', include('Hotels.urls')),
+   path('admin/', admin.site.urls),
+   path('api/accounts/', include('accounts.urls')),
+   path('api/reservations/', include('Reservations.urls')),
+   path('api/commentaires/', include('Commentaires.urls')),
+   path('api/payements/', include('Payements.urls')),
+   path('api/rooms/', include('Rooms.urls')),
+   path('api/hotels/', include('Hotels.urls')),
+   
 ]
 
 
